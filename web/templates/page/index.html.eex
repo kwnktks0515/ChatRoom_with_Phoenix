@@ -33,4 +33,6 @@
       </li>
     </ul>
   </div>
+  <input id="chat-input" type="text"></input>
+  <div id="messages"></div>
 </div>
