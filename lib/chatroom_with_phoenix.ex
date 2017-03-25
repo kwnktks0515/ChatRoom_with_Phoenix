@@ -13,9 +13,9 @@ defmodule ChatroomWithPhoenix do
       # Start the endpoint when the application starts
       supervisor(ChatroomWithPhoenix.Endpoint, []),
       # Start your own worker by calling: ChatroomWithPhoenix.Worker.start_link(arg1, arg2, arg3)
-      # worker(ChatroomWithPhoenix.Worker, [arg1, arg2, arg3]),
+      worker(ChatroomWithPhoenix.Worker, []),
     ]
-
+    
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: ChatroomWithPhoenix.Supervisor]

@@ -1,12 +1,13 @@
 defmodule ChatroomWithPhoenix.RoomChannel do
   use Phoenix.Channel
-
-  def join("rooms:lobby", _message, socket) do
-    send(self(), :after_join)
-    {:ok, socket}
-  end
-  def join("rooms:" <> _private_room_id, _params, _socket) do
-    {:error, %{reason: "unauthorized"}}
+  
+  def join("rooms:" <> room_id, _message, socket) do  
+    if Enum.any?(Agent.get(Rooms, fn list -> list end), fn(room) -> room == room_id end) do
+      send(self(), :after_join)
+      {:ok, socket}
+    else
+      {:error, %{reason: "unauthorized"}}
+    end
   end
   def handle_in("new_msg", %{"body" => body}, socket) do
     push socket, "new_msg", %{body: "Enter"}
