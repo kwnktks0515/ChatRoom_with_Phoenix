@@ -64,10 +64,8 @@ let chatInput         = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
 
 userInput.addEventListener("keypress", event => {
-  if(event.keyCode === 13){
-    if(channel == null) {
-        channel = socket.channel("room:lobby", {user: userInput.value})
-    }
+  if(event.keyCode === 13 && channel == null){
+    channel = socket.channel("room:lobby", {user: userInput.value})
     chatInput.addEventListener("keypress", event => {
       if(event.keyCode === 13){
         channel.push("new_msg", {body: chatInput.value})
@@ -77,7 +75,7 @@ userInput.addEventListener("keypress", event => {
 
     channel.on("new_msg", payload => {
       let messageItem = document.createElement("li");
-      messageItem.innerText = `${payload.body}`
+      messageItem.innerText = `${payload.user} : ${payload.body}`
       messagesContainer.appendChild(messageItem)
     })
 
