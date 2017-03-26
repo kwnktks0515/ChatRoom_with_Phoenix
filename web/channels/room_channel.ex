@@ -5,7 +5,6 @@ defmodule ChatroomWithPhoenix.RoomChannel do
     send(self(), {:after_join, message["user"]})
     {:ok, "lobby", socket}
   end
-
   def join("room:" <> room_id, message, socket) do  
     if Enum.any?(Agent.get(Rooms, fn list -> list end), fn(room) -> room == room_id end) do
       send(self(), {:after_join, message["user"]})
@@ -16,10 +15,11 @@ defmodule ChatroomWithPhoenix.RoomChannel do
   end
   def handle_in("new_msg", msg, socket) do
     push socket, "new_msg", %{body: "Enter"}
-    broadcast! socket, "new_msg", %{body: msg["body"]}
+    broadcast! socket, "new_msg", %{body: "#{socket.assigns[:username]} " <> msg["body"]}
     {:reply, :ok, socket}
   end
   def handle_info({:after_join, msg}, socket) do
+    socket = assign(socket, :username, msg)
     push socket, "new_msg", %{body: "Hello #{msg}"}
     broadcast_from! socket, "new_msg", %{body: "#{msg} Login"}
     {:noreply, socket}
@@ -29,7 +29,7 @@ defmodule ChatroomWithPhoenix.RoomChannel do
       {:shutdown, :closed} -> IO.puts "Shutdown"
       _ -> IO.puts "Any"
     end
-    broadcast_from! socket, "new_msg", %{body: "Logout"}
+    broadcast_from! socket, "new_msg", %{body: "#{socket.assigns[:username]} Logout"}
     :ok
   end
 end
