@@ -62,27 +62,42 @@ let channel = null
 let userInput         = document.querySelector("#user-input")
 let chatInput         = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
-
+chatInput.readOnly = true;
 userInput.addEventListener("keypress", event => {
   if(event.keyCode === 13 && channel == null){
+    userInput.readOnly = true;
+    chatInput.readOnly = false;
     channel = socket.channel("room:lobby", {user: userInput.value})
-    chatInput.addEventListener("keypress", event => {
-      if(event.keyCode === 13){
+    init();
+  }
+})
+
+function init() {
+  chatInput.addEventListener("keypress", event => {
+    if(event.keyCode === 13){
+      if(chatInput.value == "") {
+        console.log("error");
+      } else {
         channel.push("new_msg", {body: chatInput.value})
         chatInput.value = ""
       }
+    }
+  })
+  channel.on("new_msg", payload => {
+    let messageItem = document.createElement("li");
+    messageItem.innerText = `${payload.user} : ${payload.body}`
+    messagesContainer.appendChild(messageItem)
+  })
+  channel.on("room_info", payload => {
+    var rooms = payload.body;
+    console.log(rooms)
+  })
+  channel.join()
+    .receive("ok", resp => {
+      document.title = "Phoenix " + resp;
+      console.log("Joined successfully", resp)
     })
-
-    channel.on("new_msg", payload => {
-      let messageItem = document.createElement("li");
-      messageItem.innerText = `${payload.user} : ${payload.body}`
-      messagesContainer.appendChild(messageItem)
-    })
-
-    channel.join()
-      .receive("ok", resp => { console.log("Joined successfully", resp) })
-      .receive("error", resp => { console.log("Unable to join", resp) })
-  }
-})
+    .receive("error", resp => { console.log("Unable to join", resp) })
+}
 
 export default socket
