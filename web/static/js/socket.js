@@ -78,7 +78,7 @@ function init() {
       if(chatInput.value == "") {
         console.log("error");
       } else {
-        channel.push("new_msg", {body: chatInput.value})
+        channel.push("new_msg", {body: chatInput.value}).receive("ok", resp => {console.log("OK", resp)})
         chatInput.value = ""
       }
     }
@@ -90,6 +90,12 @@ function init() {
   })
   channel.on("room_info", payload => {
     var rooms = payload.body;
+    for(var room of rooms) {
+      var buttonItem = document.createElement("button");
+      buttonItem.type = "button";
+      buttonItem.innerText = room;
+      document.getElementById("room-list").appendChild(buttonItem);
+    }
     console.log(rooms)
   })
   channel.join()
